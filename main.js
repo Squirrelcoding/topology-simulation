@@ -1,9 +1,9 @@
-import * as THREE from 'three';
-import Konva from 'konva';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as THREE from "three";
+import Konva from "konva";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const stage = new Konva.Stage({
-  container: 'container',
+  container: "container",
   width: window.innerWidth / 10,
   height: window.innerHeight / 10,
 });
@@ -15,29 +15,34 @@ const circle = new Konva.Circle({
   x: stage.width() / 2,
   y: stage.height() / 2,
   radius: 10,
-  fill: 'red',
-  stroke: 'black',
+  fill: "red",
+  stroke: "black",
   strokeWidth: 4,
   draggable: true,
 });
 
-// add cursor styling
-circle.on('mouseover', function () {
-  document.body.style.cursor = 'pointer';
+circle.on("mouseover", function () {
+  document.body.style.cursor = "pointer";
 });
-circle.on('mouseout', function () {
-  document.body.style.cursor = 'default';
-  console.log(circle.x() / stage.width(), circle.y() / stage.height())
+circle.on("mouseout", function () {
+  document.body.style.cursor = "default";
+
+  // Loop back
+  if (circle.x() / stage.width() > 1) {
+    circle.position({ x: 0, y: 0 });
+  }
+  console.log(circle.x() / stage.width(), circle.y() / stage.height());
 });
 
 layer.add(circle);
 
+// Three.JS logic
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
-  75, 
-  window.innerWidth / window.innerHeight, 
-  0.1, 
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
   1000
 );
 
@@ -64,6 +69,8 @@ const torus = new THREE.Mesh(geometry, material);
 scene.add(torus);
 
 function torusPoint(R, r, u, v) {
+  u = u * 2 * Math.PI;
+  v = v * 2 * Math.PI;
   return new THREE.Vector3(
     (R + r * Math.cos(v)) * Math.cos(u),
     (R + r * Math.cos(v)) * Math.sin(u),
@@ -71,25 +78,21 @@ function torusPoint(R, r, u, v) {
   );
 }
 
-const R = 0.1;   // torus radius
-const r = 1; // tube radius
-
-
-
 const pointGeometry = new THREE.SphereGeometry(0.05);
 const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 const point = new THREE.Mesh(pointGeometry, pointMaterial);
 
-
-
 scene.add(point);
 
+const torusRadius = 1;
+const torusTubeRadius = 0.4;
+
 function animate() {
-	const u = circle.x() / stage.width();
-	const v = circle.y() / stage.height();
+  const u = circle.x() / stage.width();
+  const v = circle.y() / stage.height();
   requestAnimationFrame(animate);
   controls.update();
-  const position = torusPoint(1, 0.4, u, v);
+  const position = torusPoint(torusRadius, torusTubeRadius, u, v);
   point.position.copy(position);
   renderer.render(scene, camera);
 }
