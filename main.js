@@ -24,14 +24,36 @@ const circle = new Konva.Circle({
 circle.on("mouseover", function () {
   document.body.style.cursor = "pointer";
 });
+
 circle.on("mouseout", function () {
   document.body.style.cursor = "default";
+});
 
-  // Loop back
-  if (circle.x() / stage.width() > 1) {
-    circle.position({ x: 0, y: 0 });
+// Add dragmove event to handle wrapping during dragging
+circle.on("dragmove", function () {
+  let x = circle.x();
+  let y = circle.y();
+  const width = stage.width();
+  const height = stage.height();
+  
+  // Wrap horizontally
+  if (x < 0) {
+	// For some reason x % width doesn't work so we need to do width + x
+    x = (width + x) % width;
+    circle.x(x);
+  } else if (x > width) {
+    x %= width;
+    circle.x(x);
   }
-  console.log(circle.x() / stage.width(), circle.y() / stage.height());
+  
+  // Wrap vertically
+  if (y < 0) {
+    y = height + y % height;
+    circle.y(y);
+  } else if (y > height) {
+    y = (height + y) % height;
+    circle.y(y);
+  }
 });
 
 layer.add(circle);
