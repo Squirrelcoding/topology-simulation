@@ -1,52 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useRef, useState, useEffect, act } from 'react';
+import { Canvas } from '@react-three/fiber';
+import Torus from "../components/Torus";
+import Mobius from "../components/Mobius";
+import Klein from "../components/Klein";
+import Projective from "../components/Projective";
 
-function torusPoint(R, r, u, v) {
-	const uRad = u * 2 * Math.PI;
-	const vRad = v * 2 * Math.PI;
-	return new THREE.Vector3(
-		(R + r * Math.cos(vRad)) * Math.cos(uRad),
-		(R + r * Math.cos(vRad)) * Math.sin(uRad),
-		r * Math.sin(vRad)
-	);
-}
-
-function Scene({ circlePos }) {
-	const pointRef = useRef();
-	const torusRadius = 1;
-	const torusTubeRadius = 0.4;
-
-	useFrame(() => {
-		if (pointRef.current) {
-			const position = torusPoint(torusRadius, torusTubeRadius, circlePos.u, circlePos.v);
-			pointRef.current.position.copy(position);
-		}
-	});
-
-	return (
-		<>
-			<mesh>
-				<torusGeometry args={[torusRadius, torusTubeRadius]} />
-				<meshNormalMaterial />
-			</mesh>
-
-			<mesh ref={pointRef}>
-				<sphereGeometry args={[0.05]} />
-				<meshBasicMaterial color={0xff0000} />
-			</mesh>
-
-			<OrbitControls
-				target={[0, 0, 0]}
-				enablePan={true}
-				enableZoom={true}
-				enableDamping={true}
-				dampingFactor={0.05}
-			/>
-		</>
-	);
-}
 
 function FundamentalSquare({ onPositionChange }) {
 	const canvasRef = useRef(null);
@@ -173,7 +131,8 @@ function FundamentalSquare({ onPositionChange }) {
 	);
 }
 
-function MenuBar() {
+export default function App() {
+	const [circlePos, setCirclePos] = useState({ u: 0.5, v: 0.5 });
 	const [activeSurface, setActiveSurface] = useState('torus');
 	const [highlighterStyle, setHighlighterStyle] = useState({});
 	const menuRef = useRef(null);
@@ -187,6 +146,7 @@ function MenuBar() {
 	];
 
 	useEffect(() => {
+		console.log(activeSurface);
 		if (buttonRefs.current[activeSurface] && menuRef.current) {
 			const btn = buttonRefs.current[activeSurface];
 			const btnRect = btn.getBoundingClientRect();
@@ -198,77 +158,6 @@ function MenuBar() {
 			});
 		}
 	}, [activeSurface]);
-
-	return (
-		<div style={{
-			position: 'fixed',
-			top: '20px',
-			left: '50%',
-			transform: 'translateX(-50%)',
-			zIndex: 100,
-			background: 'rgba(255, 255, 255, 0.16)',
-			padding: '8px 12px',
-			borderRadius: '16px',
-			border: '1px solid rgba(255, 255, 255, 0.3)',
-			backdropFilter: 'blur(5px)',
-			boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)'
-		}}>
-			<div ref={menuRef} style={{
-				display: 'flex',
-				alignItems: 'center',
-				gap: '4px',
-				position: 'relative'
-			}}>
-				<div style={{
-					position: 'absolute',
-					background: 'white',
-					borderRadius: '50px',
-					transition: 'all 0.3s ease',
-					zIndex: 1,
-					height: 'calc(100% - 8px)',
-					top: '4px',
-					...highlighterStyle
-				}} />
-				{surfaces.map(surface => (
-					<button
-						key={surface.id}
-						ref={el => buttonRefs.current[surface.id] = el}
-						onClick={() => setActiveSurface(surface.id)}
-						style={{
-							background: 'transparent',
-							border: 'none',
-							color: activeSurface === surface.id ? 'black' : 'rgba(255, 255, 255, 0.6)',
-							padding: '8px 20px',
-							borderRadius: '50px',
-							fontSize: '14px',
-							fontWeight: 500,
-							cursor: 'pointer',
-							transition: 'color 0.3s ease',
-							position: 'relative',
-							zIndex: 2
-						}}
-						onMouseEnter={(e) => {
-							if (activeSurface !== surface.id) {
-								e.target.style.color = 'rgba(255, 255, 255, 0.9)';
-							}
-						}}
-						onMouseLeave={(e) => {
-							if (activeSurface !== surface.id) {
-								e.target.style.color = 'rgba(255, 255, 255, 0.6)';
-							}
-						}}
-					>
-						{surface.label}
-					</button>
-				))}
-			</div>
-		</div>
-	);
-}
-
-export default function App() {
-	const [circlePos, setCirclePos] = useState({ u: 0.5, v: 0.5 });
-
 	return (
 		<div style={{
 			position: 'fixed',
@@ -281,13 +170,78 @@ export default function App() {
 			overflow: 'hidden',
 			background: 'black'
 		}}>
-			<MenuBar />
+			<div style={{
+				position: 'fixed',
+				top: '20px',
+				left: '50%',
+				transform: 'translateX(-50%)',
+				zIndex: 100,
+				background: 'rgba(255, 255, 255, 0.16)',
+				padding: '8px 12px',
+				borderRadius: '16px',
+				border: '1px solid rgba(255, 255, 255, 0.3)',
+				backdropFilter: 'blur(5px)',
+				boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)'
+			}}>
+				<div ref={menuRef} style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: '4px',
+					position: 'relative'
+				}}>
+					<div style={{
+						position: 'absolute',
+						background: 'white',
+						borderRadius: '50px',
+						transition: 'all 0.3s ease',
+						zIndex: 1,
+						height: 'calc(100% - 8px)',
+						top: '4px',
+						...highlighterStyle
+					}} />
+					{surfaces.map(surface => (
+						<button
+							key={surface.id}
+							ref={el => buttonRefs.current[surface.id] = el}
+							onClick={() => setActiveSurface(surface.id)}
+							style={{
+								background: 'transparent',
+								border: 'none',
+								color: activeSurface === surface.id ? 'black' : 'rgba(255, 255, 255, 0.6)',
+								padding: '8px 20px',
+								borderRadius: '50px',
+								fontSize: '14px',
+								fontWeight: 500,
+								cursor: 'pointer',
+								transition: 'color 0.3s ease',
+								position: 'relative',
+								zIndex: 2
+							}}
+							onMouseEnter={(e) => {
+								if (activeSurface !== surface.id) {
+									e.target.style.color = 'rgba(255, 255, 255, 0.9)';
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (activeSurface !== surface.id) {
+									e.target.style.color = 'rgba(255, 255, 255, 0.6)';
+								}
+							}}
+						>
+							{surface.label}
+						</button>
+					))}
+				</div>
+			</div>
 			<FundamentalSquare onPositionChange={setCirclePos} />
 			<Canvas
 				camera={{ position: [5, 5, 5], fov: 75 }}
 				gl={{ antialias: true }}
 			>
-				<Scene circlePos={circlePos} />
+				{activeSurface == "torus" && <Torus circlePos={circlePos} />}
+				{activeSurface == "mobius" && <Mobius circlePos={circlePos} />}
+				{activeSurface == "klein" && <Klein circlePos={circlePos} />}
+				{activeSurface == "projective" && <Projective circlePos={circlePos} />}
 			</Canvas>
 		</div>
 	);
