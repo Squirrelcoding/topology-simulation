@@ -1,41 +1,13 @@
-import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { useLoader } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import * as THREE from 'three';
-
-function torusPoint(R: number, r: number, u: number, v: number) {
-	const uRad = u * 2 * Math.PI;
-	const vRad = v * 2 * Math.PI;
-	return new THREE.Vector3(
-		(R + r * Math.cos(vRad)) * Math.cos(uRad),
-		(R + r * Math.cos(vRad)) * Math.sin(uRad),
-		r * Math.sin(vRad)
-	);
-}
 
 export default function Scene({ circlePos }) {
-	const pointRef = useRef();
-	const torusRadius = 1;
-	const torusTubeRadius = 0.4;
-
-	useFrame(() => {
-		if (pointRef.current) {
-			const position = torusPoint(torusRadius, torusTubeRadius, circlePos.u, circlePos.v);
-			pointRef.current.position.copy(position);
-		}
-	});
+	const obj = useLoader(OBJLoader, './mobius_2.obj');
 
 	return (
 		<>
-			<mesh>
-				<torusGeometry args={[torusRadius, torusTubeRadius]} />
-				<meshNormalMaterial />
-			</mesh>
-
-			<mesh ref={pointRef}>
-				<sphereGeometry args={[0.05]} />
-				<meshBasicMaterial color={0xff0000} />
-			</mesh>
+			<primitive object={obj} />
 
 			<OrbitControls
 				target={[0, 0, 0]}
