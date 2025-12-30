@@ -1,18 +1,22 @@
-import { MeshBasicMaterial, Vector3 } from "three";
+import { MeshBasicMaterial, Vector3 } from 'three';
 import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
-import { mobius3d } from "three/addons/geometries/ParametricFunctions.js";
-import { OrbitControls } from "@react-three/drei";
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { mobius3d } from 'three/addons/geometries/ParametricFunctions.js';
+import { OrbitControls } from '@react-three/drei';
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import type * as THREE from 'three';
+import type { CirclePos } from './parametrics';
 
-// Literally the same as the mobius3d but scaled
+// Scaled mobius parametric helper (keeps original math, returns Vector3)
 function mobius3dParameter(u: number, t: number) {
 	u *= Math.PI;
 	t *= 2 * Math.PI;
 
 	u = u * 2;
 	const phi = u / 2;
-	const major = 2.25, a = 0.125, b = 0.65;
+	const major = 2.25,
+		a = 0.125,
+		b = 0.65;
 
 	let x = a * Math.cos(t) * Math.cos(phi) - b * Math.sin(t) * Math.sin(phi);
 	const z = a * Math.cos(t) * Math.sin(phi) + b * Math.sin(t) * Math.cos(phi);
@@ -22,11 +26,13 @@ function mobius3dParameter(u: number, t: number) {
 	return new Vector3(x * 0.5, y * 0.5, z * 0.5);
 }
 
-export default function Scene({ circlePos }) {
+type Props = { circlePos: CirclePos };
+
+export default function Mobius({ circlePos }: Props) {
 	const geometry = new ParametricGeometry(mobius3d, 32, 32);
 	const material = new MeshBasicMaterial({ color: 0x00ff00 });
 
-	const pointRef = useRef();
+	const pointRef = useRef<THREE.Mesh | null>(null);
 
 	useFrame(() => {
 		if (pointRef.current) {
@@ -35,21 +41,12 @@ export default function Scene({ circlePos }) {
 		}
 	});
 
-
 	return (
 		<>
 			<mesh geometry={geometry} material={material} scale={0.5}>
 				<meshNormalMaterial />
-
-
 			</mesh>
-			<OrbitControls
-				target={[0, 0, 0]}
-				enablePan={true}
-				enableZoom={true}
-				enableDamping={true}
-				dampingFactor={0.05}
-			/>
+			<OrbitControls target={[0, 0, 0]} enablePan enableZoom enableDamping dampingFactor={0.05} />
 
 			<mesh ref={pointRef}>
 				<sphereGeometry args={[0.05]} />

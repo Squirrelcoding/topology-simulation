@@ -2,19 +2,12 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { type CirclePos, torusPoint } from './parametrics';
 
-function torusPoint(R: number, r: number, u: number, v: number) {
-	const uRad = u * 2 * Math.PI;
-	const vRad = v * 2 * Math.PI;
-	return new THREE.Vector3(
-		(R + r * Math.cos(vRad)) * Math.cos(uRad),
-		(R + r * Math.cos(vRad)) * Math.sin(uRad),
-		r * Math.sin(vRad)
-	);
-}
+type Props = { circlePos: CirclePos };
 
-export default function Scene({ circlePos }) {
-	const pointRef = useRef();
+export default function Torus({ circlePos }: Props) {
+	const pointRef = useRef<THREE.Mesh | null>(null);
 	const torusRadius = 1;
 	const torusTubeRadius = 0.4;
 
@@ -37,13 +30,7 @@ export default function Scene({ circlePos }) {
 				<meshBasicMaterial color={0xff0000} />
 			</mesh>
 
-			<OrbitControls
-				target={[0, 0, 0]}
-				enablePan={true}
-				enableZoom={true}
-				enableDamping={true}
-				dampingFactor={0.05}
-			/>
+			<OrbitControls target={[0, 0, 0]} enablePan enableZoom enableDamping dampingFactor={0.05} />
 		</>
 	);
 }
