@@ -1,18 +1,14 @@
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
-import { useLoader } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
+import { MeshBasicMaterial } from "three";
+import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
+import { mobius3d } from "three/addons/geometries/ParametricFunctions.js";
+import { OrbitControls } from "@react-three/drei";
 
 export default function Scene({ circlePos }) {
-	const materials = useLoader(MTLLoader, "./mobius.mtl");
-	const obj = useLoader(OBJLoader, "./mobius.obj", (loader) => {
-		materials.preload();
-		loader.setMaterials(materials);
-	});
-	console.log(obj);
+	const geometry = new ParametricGeometry(mobius3d, 20, 20);
+	const material = new MeshBasicMaterial({ color: 0x00ff00 });
 	return (
 		<>
-			<primitive object={obj} scale={0.4} />
+			<mesh geometry={geometry} material={material} />
 			<OrbitControls
 				target={[0, 0, 0]}
 				enablePan={true}
