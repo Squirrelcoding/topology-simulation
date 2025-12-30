@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, Vector3 } from 'three';
+import { MeshNormalMaterial, Vector3 } from 'three';
 import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
 import { klein } from 'three/addons/geometries/ParametricFunctions.js';
 import { OrbitControls } from '@react-three/drei';
@@ -6,6 +6,8 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type * as THREE from 'three';
 import type { CirclePos } from './parametrics';
+
+const SCALE = 0.25;
 
 function klein3dParameter(v: number, u: number) {
 	u *= Math.PI;
@@ -23,14 +25,14 @@ function klein3dParameter(v: number, u: number) {
 
 	const y = -2 * (1 - Math.cos(u) / 2) * Math.sin(v);
 
-	return new Vector3(x * 0.5, y * 0.5, z * 0.5);
+	return new Vector3(x * SCALE, y * SCALE, z * SCALE);
 }
 
 type Props = { circlePos: CirclePos };
 
 export default function Klein({ circlePos }: Props) {
 	const geometry = new ParametricGeometry(klein, 32, 32);
-	const material = new MeshBasicMaterial({ color: 0x00ff00 });
+	const material = new MeshNormalMaterial();
 
 	const pointRef = useRef<THREE.Mesh | null>(null);
 
@@ -43,9 +45,7 @@ export default function Klein({ circlePos }: Props) {
 
 	return (
 		<>
-			<mesh geometry={geometry} material={material} scale={0.5}>
-				<meshNormalMaterial />
-			</mesh>
+			<mesh geometry={geometry} material={material} scale={SCALE} />
 			<OrbitControls target={[0, 0, 0]} enablePan enableZoom enableDamping dampingFactor={0.05} />
 
 			<mesh ref={pointRef}>

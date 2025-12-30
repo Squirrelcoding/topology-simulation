@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { Vector3 } from 'three';
+import { MeshNormalMaterial, Vector3 } from 'three';
 import { ParametricGeometry } from 'three/examples/jsm/Addons.js';
 import type { CirclePos } from './parametrics';
 
@@ -47,7 +47,7 @@ type Props = { circlePos: CirclePos };
 
 export default function Projective({ circlePos }: Props) {
 	const geometry = new ParametricGeometry(boysSurface, 64, 64);
-	const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+	const material = new MeshNormalMaterial();
 
 	const pointRef = useRef<THREE.Mesh | null>(null);
 
@@ -60,9 +60,7 @@ export default function Projective({ circlePos }: Props) {
 
 	return (
 		<>
-			<mesh geometry={geometry} material={material} scale={0.5}>
-				<meshNormalMaterial />
-			</mesh>
+			<mesh geometry={geometry} material={material}  />
 			<OrbitControls target={[0, 0, 0]} enablePan enableZoom enableDamping dampingFactor={0.05} />
 
 			<mesh ref={pointRef}>

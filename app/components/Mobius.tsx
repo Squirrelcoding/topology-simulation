@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, Vector3 } from 'three';
+import { MeshNormalMaterial, Vector3 } from 'three';
 import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
 import { mobius3d } from 'three/addons/geometries/ParametricFunctions.js';
 import { OrbitControls } from '@react-three/drei';
@@ -30,7 +30,7 @@ type Props = { circlePos: CirclePos };
 
 export default function Mobius({ circlePos }: Props) {
 	const geometry = new ParametricGeometry(mobius3d, 32, 32);
-	const material = new MeshBasicMaterial({ color: 0x00ff00 });
+	const material = new MeshNormalMaterial();
 
 	const pointRef = useRef<THREE.Mesh | null>(null);
 
@@ -43,9 +43,7 @@ export default function Mobius({ circlePos }: Props) {
 
 	return (
 		<>
-			<mesh geometry={geometry} material={material} scale={0.5}>
-				<meshNormalMaterial />
-			</mesh>
+			<mesh geometry={geometry} material={material} scale={0.5} />
 			<OrbitControls target={[0, 0, 0]} enablePan enableZoom enableDamping dampingFactor={0.05} />
 
 			<mesh ref={pointRef}>
