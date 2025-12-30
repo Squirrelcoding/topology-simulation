@@ -45,7 +45,9 @@ export default function Scene({ circlePos }) {
 
 	return (
 		<>
-			<mesh geometry={geometry} material={material} scale={0.5} />
+			<mesh geometry={geometry} material={material} scale={0.5}>
+				<meshNormalMaterial />
+			</mesh>
 			<OrbitControls
 				target={[0, 0, 0]}
 				enablePan={true}

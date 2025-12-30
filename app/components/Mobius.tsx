@@ -14,10 +14,10 @@ function mobius3dParameter(u: number, t: number) {
 	const phi = u / 2;
 	const major = 2.25, a = 0.125, b = 0.65;
 
-	let x = a * Math.cos( t ) * Math.cos( phi ) - b * Math.sin( t ) * Math.sin( phi );
-	const z = a * Math.cos( t ) * Math.sin( phi ) + b * Math.sin( t ) * Math.cos( phi );
-	const y = ( major + x ) * Math.sin( u );
-	x = ( major + x ) * Math.cos( u );
+	let x = a * Math.cos(t) * Math.cos(phi) - b * Math.sin(t) * Math.sin(phi);
+	const z = a * Math.cos(t) * Math.sin(phi) + b * Math.sin(t) * Math.cos(phi);
+	const y = (major + x) * Math.sin(u);
+	x = (major + x) * Math.cos(u);
 
 	return new Vector3(x * 0.5, y * 0.5, z * 0.5);
 }
@@ -38,7 +38,11 @@ export default function Scene({ circlePos }) {
 
 	return (
 		<>
-			<mesh geometry={geometry} material={material} scale={0.5} />
+			<mesh geometry={geometry} material={material} scale={0.5}>
+				<meshNormalMaterial />
+
+
+			</mesh>
 			<OrbitControls
 				target={[0, 0, 0]}
 				enablePan={true}

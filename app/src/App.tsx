@@ -168,7 +168,7 @@ export default function App() {
 			margin: 0,
 			padding: 0,
 			overflow: 'hidden',
-			background: 'white'
+			background: 'black'
 		}}>
 			<div style={{
 				position: 'fixed',
