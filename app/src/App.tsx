@@ -9,9 +9,9 @@ import Markdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
-type FundamentalSquareProps = { onPositionChange: (pos: CirclePos) => void };
+type FundamentalSquareProps = { onPositionChange: (pos: CirclePos) => void, surface: 'torus' | 'mobius' | 'klein' | 'projective' };
 
-function FundamentalSquare({ onPositionChange }: FundamentalSquareProps) {
+function FundamentalSquare({ onPositionChange, surface }: FundamentalSquareProps) {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [circlePos, setCirclePos] = useState({ x: 75, y: 75 });
@@ -55,15 +55,63 @@ function FundamentalSquare({ onPositionChange }: FundamentalSquareProps) {
 		const rect = canvasRef.current.getBoundingClientRect();
 		let x = e.clientX - rect.left;
 		let y = e.clientY - rect.top;
+		console.log(surface);
+		if (surface === "torus") {
+			if (x < 0) x = (squareSize + x) % squareSize;
+			else if (x > squareSize) x %= squareSize;
 
-		if (x < 0) x = (squareSize + x) % squareSize;
-		else if (x > squareSize) x %= squareSize;
+			if (y < 0) y = (20 * squareSize + y) % squareSize;
+			else if (y > squareSize) y = y % squareSize;
 
-		if (y < 0) y = (20 * squareSize + y) % squareSize;
-		else if (y > squareSize) y = y % squareSize;
+			setCirclePos({ x, y });
+		}
+		if (surface === "mobius") {
+			if (x < 0) {
+				x = (squareSize + x) % squareSize;
+				y = squareSize - y;
+			}
+			else if (x > squareSize) {
+				x %= squareSize;
+				y = squareSize - y;
+			}
 
-		setCirclePos({ x, y });
-	}, [isDragging]);
+			if (y < 0) y = (20 * squareSize + y) % squareSize;
+			else if (y > squareSize) y = y % squareSize;
+
+			setCirclePos({ x, y });
+		}
+		if (surface === "klein") {
+			if (x < 0) {
+				x = (squareSize + x) % squareSize;
+				// y = squareSize - y;
+			}
+			else if (x > squareSize) {
+				x %= squareSize;
+				// y = squareSize - y;
+			}
+
+			if (y < 0) {
+				y = (20 * squareSize + y) % squareSize;
+				x = squareSize - x;
+			}
+			else if (y > squareSize) {
+				y = y % squareSize;
+				x = squareSize - x;
+			};
+
+			setCirclePos({ x, y });
+		}
+		if (surface === "projective") {
+			if (x < 0) x = (squareSize + x) % squareSize;
+			else if (x > squareSize) x %= squareSize;
+
+			if (y < 0) y = (20 * squareSize + y) % squareSize;
+			else if (y > squareSize) y = y % squareSize;
+
+			setCirclePos({ x, y });
+		}
+
+	}, [isDragging, surface]);
 
 	useEffect(() => {
 		if (!isDragging) return;
@@ -106,7 +154,9 @@ export default function App() {
 	] as const;
 
 	const surfaceHelp: Record<'torus' | 'mobius' | 'klein' | 'projective', string> = {
-		torus: `This is an example of a markdown file. We have the quadratic formula: $$ x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a} $$ The discriminant is useful in determining the ring of integers of a quadratic field $\\mathbb Z(\\sqrt d)$ where $d$ is a nontrivial square-free integer. We have $$ \\mathcal O_K = \\mathbb Z\\left[\\frac{1}{2}(1+\\sqrt d) \\right] $$ when $d \\equiv 1 \\pmod 4$ and $\\mathbb Z[\\sqrt d]$ otherwise.`,
+		torus: `We can get many shapes from taking a square and connecting its edges in different ways. One of the simplest interesting shapes that we can  obtain from this is the torus, which looks like a donut.
+
+We can get this shape by first labelling arrows on the unit square and then connecting them together.`,
 		mobius: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
 		klein: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
 		projective: 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.',
@@ -141,7 +191,7 @@ export default function App() {
 				</div>
 			</div>
 
-			<FundamentalSquare onPositionChange={setCirclePos} />
+			<FundamentalSquare onPositionChange={setCirclePos} surface={activeSurface} />
 
 			<button
 				onClick={() => setShowHelpModal(true)}
@@ -156,7 +206,10 @@ export default function App() {
 			{showHelpModal && (
 				<div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowHelpModal(false)}>
 					<div style={{ background: 'rgba(255,255,255,0.95)', borderRadius: 16, padding: '32px', maxWidth: 500, backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }} onClick={(e) => e.stopPropagation()}>
-						<Markdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+						<Markdown
+							remarkPlugins={[remarkMath]}
+							rehypePlugins={[[rehypeKatex, { strict: false }]]}
+						>
 							{surfaceHelp[activeSurface]}
 						</Markdown>
 						<button
